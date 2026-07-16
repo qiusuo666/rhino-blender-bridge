@@ -1,0 +1,19 @@
+# 交换缓存
+*.obj
+*.stl
+*.json
+
+# Blender
+*.blend1
+
+# Python
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
