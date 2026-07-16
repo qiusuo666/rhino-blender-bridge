@@ -29,4 +29,4 @@ Blender 5.x 与 Rhino 8 双向模型传输插件，通过临时文件交换 OBJ/
 
 ## 许可证
 
-[GPL-2.0](LICENSE) — 与 Blender 相同。
+[GPL-2.0](LICENSE) 
