@@ -5,6 +5,7 @@ import os
 import tempfile
 import json
 import glob as glob_module
+import re
 
 TEMP_DIR = tempfile.gettempdir()
 MANIFEST_OBJ = os.path.join(TEMP_DIR, "br_exchange_manifest.json")
@@ -19,12 +20,25 @@ def do_export(fmt, objs):
     prefix = "br_exchange_stl" if fmt == "STL" else "br_exchange"
     manifest_file = MANIFEST_STL if fmt == "STL" else MANIFEST_OBJ
 
-    # ---------- 清理旧文件 ----------
+    # ---------- 清理旧文件（仅删除脚本生成的编号文件） ----------
+    pattern = r'^' + re.escape(prefix) + r'_\d+\.' + ext + r'$'
     for f in glob_module.glob(os.path.join(TEMP_DIR, prefix + "_*." + ext)):
-        try:
-            os.remove(f)
-        except Exception:
-            pass
+        basename = os.path.basename(f)
+        if re.match(pattern, basename):
+            try:
+                os.remove(f)
+            except Exception:
+                pass
+    # OBJ 导出会附带 .mtl 材质文件，一并清理
+    if ext == "obj":
+        pattern_mtl = r'^' + re.escape(prefix) + r'_\d+\.mtl$'
+        for f in glob_module.glob(os.path.join(TEMP_DIR, prefix + "_*.mtl")):
+            basename = os.path.basename(f)
+            if re.match(pattern_mtl, basename):
+                try:
+                    os.remove(f)
+                except Exception:
+                    pass
     if os.path.exists(manifest_file):
         try:
             os.remove(manifest_file)

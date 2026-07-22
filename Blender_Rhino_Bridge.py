@@ -13,7 +13,6 @@ import os
 import tempfile
 import json
 import glob as glob_module
-import bmesh
 
 TEMP_DIR = tempfile.gettempdir()
 TEMP_FILE_OBJ = os.path.join(TEMP_DIR, "blender_rhino_exchange.obj")
@@ -21,37 +20,18 @@ TEMP_FILE_STL = os.path.join(TEMP_DIR, "blender_rhino_exchange.stl")
 MANIFEST_OBJ = os.path.join(TEMP_DIR, "br_exchange_manifest.json")
 MANIFEST_STL = os.path.join(TEMP_DIR, "br_exchange_manifest_stl.json")
 
-# ---- 后处理参数 ----
-MERGE_DISTANCE = 0.0001       # 合并重叠顶点的距离阈值
-AUTO_SMOOTH_ANGLE = 0.523599  # 自动锐边角度（弧度，30°）
-
 # ---- 坐标轴转换（Rhino Z-up ↔ Blender Y-up）----
 FORWARD = 'NEGATIVE_Z'
 UP = 'Y'
 
 
 # ============================================================
-#  后处理：合并重叠顶点 + 平滑着色 + 自动锐边
+#  导入后处理：仅命名，不做几何修改（保留 OBJ/STL 自带的法线数据）
 # ============================================================
 def post_process_mesh(obj):
-    """对导入的 mesh 对象进行后处理，使其立即可用"""
+    """对导入的 mesh 进行基本设置（不修改顶点和法线）"""
     if obj.type != 'MESH':
         return
-
-    mesh = obj.data
-    bpy.context.view_layer.objects.active = obj
-
-    # 1. 合并重叠顶点（使用 BMesh，跨所有 Blender 版本兼容）
-    bpy.ops.object.mode_set(mode='EDIT')
-    bm = bmesh.from_edit_mesh(mesh)
-    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=MERGE_DISTANCE)
-    bmesh.update_edit_mesh(mesh)
-    bpy.ops.object.mode_set(mode='OBJECT')
-
-    # 2. 平滑着色 + 自动锐边
-    bpy.ops.object.shade_smooth()
-    mesh.use_auto_smooth = True
-    mesh.auto_smooth_angle = AUTO_SMOOTH_ANGLE
 
 
 # ============================================================
